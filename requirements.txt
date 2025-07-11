@@ -1,0 +1,8 @@
+pandas==2.2.2
+numpy==1.26.4
+matplotlib==3.9.2
+statsmodels==0.14.2
+plotly==5.22.0
+dash==2.17.1
+boto3==1.34.149
+joblib==1.4.2
