@@ -1,122 +1,60 @@
-Real-Time Sales Forecasting & Inventory Manager
+# Real-Time Sales Forecasting & Inventory Manager
 
-Overview
-This project is a real-time sales forecasting and inventory management system designed for small retailers. Built with Python, Plotly Dash, and AWS, it provides a 7-day sales forecast, automated inventory reorder alerts, and an interactive dashboard for real-time insights. The system leverages synthetic data for rapid development and integrates with AWS for scalable deployment.
-Features
+## Overview
+A real-time sales forecasting and inventory management system for small retailers, built with Python, Plotly Dash, and AWS. Features include a 7-day sales forecast, automated reorder alerts, and a live dashboard.
 
-7-Day Sales Forecast: Predicts future sales using time-series models (e.g., ARIMA).
-Inventory Management: Generates automated reorder alerts based on stock levels.
-Interactive Dashboard: Visualizes sales trends and forecasts using Plotly Dash.
-Cloud Integration: Deploys forecasting and alerts via AWS Lambda and DynamoDB.
-Scalable Architecture: Containerized with Docker for consistent development and deployment.
-
-Project Structure
+## Project Structure
+```
 real-time-sales-forecasting/
 ├── data/
 │   ├── raw/
-│   │   └── sales_data.csv              # Synthetic sales data
+│   │   └── sales_data.csv
 │   └── processed/
-│       └── cleaned_sales_data.csv      # Cleaned data for analysis
-│       └── plots/                      # EDA visualizations
+│       └── cleaned_sales_data.csv
+│       └── forecasted_sales.csv
 ├── model/
-│   └── sales_forecast.pkl              # Trained forecasting model
+│   └── sales_forecast.pkl
 ├── src/
-│   ├── data_prep.py                    # Generates synthetic sales data
-│   ├── model_train.py                  # Trains forecasting model
-│   ├── predict.py                      # Generates predictions
-│   ├── alert_system.py                 # Manages inventory alerts
-│   └── utils.py                        # Utility functions
+│   ├── data_prep.py
+│   ├── model_train.py
+│   ├── predict.py
+│   ├── alert_system.py
+│   └── utils.py
 ├── app/
-│   └── dashboard.py                    # Plotly Dash dashboard
+│   └── dashboard.py
 ├── aws/
-│   ├── lambda_function.py              # AWS Lambda handler
-│   ├── deploy_lambda.sh                # Deployment script
-│   └── email_template.html             # Email alert template
-├── requirements.txt                    # Python dependencies
-├── Dockerfile                          # Docker configuration
-├── README.md                           # Project documentation
-└── .env                                # Environment variables (not tracked)
+│   ├── lambda_function.py
+│   ├── deploy_lambda.sh
+│   └── email_template.html
+├── requirements.txt
+├── Dockerfile
+├── README.md
+└── .env
+```
 
-Prerequisites
+## Setup Instructions
+1. Clone the repository.
+2. Set up a virtual environment: `python -m venv venv`
+3. Install dependencies: `pip install -r requirements.txt`
+4. Build Docker image: `docker build -t sales-forecasting .`
+5. Run data preparation: `python src/data_prep.py`
+6. Train model: `python src/model_train.py`
+7. Generate forecast: `python src/predict.py`
 
-Python: Version 3.9 or higher
-Docker: Version 24.0 or higher
-Git: For version control
-AWS Account: For cloud deployment (free-tier recommended)
-VS Code or similar IDE for development
+## Progress
+- **Day 1**:
+  - Set up project structure and Docker environment.
+  - Generated synthetic sales data for 180 days.
+  - Performed EDA with Plotly visualizations to identify sales trends.
+- **Day 2**:
+  - Preprocessed sales data for time series modeling.
+  - Trained an ARIMA model using statsmodels for 7-day sales forecasting.
+  - Saved the model and generated forecasts, stored in `data/processed/forecasted_sales.csv`.
 
-Setup Instructions
+## Next Steps
+- Day 3: Implement inventory alert logic.
+- Day 4: Develop a Plotly Dash dashboard.
+- Day 5: Integrate AWS Lambda and DynamoDB.
+- Day 6: Add email alerts and finalize documentation.
 
-Clone the Repository:
-git clone https://github.com/mubeenvr27/real-time-sales-forecasting.git
-cd real-time-sales-forecasting
-
-
-Set Up a Virtual Environment:
-python -m venv venv
-
-
-On Windows:venv\Scripts\activate
-
-
-On macOS/Linux:source venv/bin/activate
-
-
-
-
-Install Dependencies:
-pip install -r requirements.txt
-
-
-Build Docker Image:
-docker build -t sales-forecasting .
-
-
-Generate Synthetic Sales Data:
-python src/data_prep.py
-
-
-Outputs data/raw/sales_data.csv with two years of synthetic data (2023–2024).
-
-
-Run EDA:
-python src/data_prep.py
-
-
-Generates plots in data/processed/plots/ and cleaned data in data/processed/cleaned_sales_data.csv.
-
-
-Run in Docker:
-docker run --rm -v $(pwd)/data:/app/data -p 8050:8050 sales-forecasting
-
-
-
-Progress (Day 1)
-
-Project Setup: Initialized repository, configured project structure, and set up Docker environment with Python 3.9.
-Synthetic Data Generation: Created two years of synthetic sales data (2023–2024) with weekly seasonality, saved to data/raw/sales_data.csv.
-Exploratory Data Analysis (EDA): Generated Plotly visualizations (daily sales trends, 7-day moving average) saved as PNGs in data/processed/plots/.
-Environment Security: Secured .env file for AWS credentials and excluded data files in .gitignore.
-
-Next Steps
-
-Day 2: Develop and train an ARIMA model for 7-day sales forecasting in src/model_train.py.
-Day 3: Implement inventory alert logic in src/alert_system.py based on stock thresholds.
-Day 4: Build an interactive Plotly Dash dashboard in app/dashboard.py for real-time visualization.
-Day 5: Integrate AWS Lambda and DynamoDB for cloud-based forecasting and storage.
-Day 6: Add email alerts using aws/email_template.html and finalize documentation.
-Day 7: Add architecture diagram, screenshots, and polish for resume-worthy presentation.
-
-Future Enhancements
-
-Add real-world data integration (e.g., from Kaggle or retailer APIs).
-Enhance forecasting with machine learning models (e.g., Prophet, LSTM).
-Include multi-user support in the Dash dashboard.
-Optimize AWS costs for scalability.
-
-Architecture Diagram
-To be added upon project completion.
-Screenshots
-To be added after dashboard implementation.
-
-For questions or contributions, contact mubeenvr27 or open an issue on GitHub.
+*Architecture diagram and screenshots to be added later.*
