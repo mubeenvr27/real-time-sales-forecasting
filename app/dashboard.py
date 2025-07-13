@@ -42,7 +42,7 @@ def load_data():
             raise ValueError("Alerts data must contain 'date', 'stock', 'forecasted_sales', 'message' columns")
     except Exception as e:
         print(f"Error loading alerts data: {str(e)}")
-        alerts_df = pd.DataFrame({'date': [], 'stock': [], 'forecasted_sales': [], 'message': []})
+        alerts_df = pd.DataFrame({'date': [], 'stock': [], 'forecasted_sales', 'message': []})
 
     return historical_df, forecast_df, alerts_df
 
@@ -114,4 +114,6 @@ app.layout = html.Div([
 ], style={'backgroundColor': '#1a1a1a', 'padding': '20px'})
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=8050)
+    import os
+    port = int(os.getenv('PORT', 8050))  # Use PORT env var from Render, default to 8050 locally
+    app.run_server(debug=True, host='0.0.0.0', port=port)
