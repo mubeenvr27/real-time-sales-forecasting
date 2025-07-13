@@ -42,7 +42,7 @@ def load_data():
             raise ValueError("Alerts data must contain 'date', 'stock', 'forecasted_sales', 'message' columns")
     except Exception as e:
         print(f"Error loading alerts data: {str(e)}")
-        alerts_df = pd.DataFrame({'date': [], 'stock': [], 'forecasted_sales', 'message': []})
+        alerts_df = pd.DataFrame({'date': [], 'stock': [], 'forecasted_sales': [], 'message': []})
 
     return historical_df, forecast_df, alerts_df
 
