@@ -40,6 +40,7 @@ real-time-sales-forecasting/
 5. Run data preparation: `python src/data_prep.py`
 6. Train model: `python src/model_train.py`
 7. Generate forecast: `python src/predict.py`
+8. Generate inventory alerts: `python src/alert_system.py`
 
 ## Progress
 - **Day 1**:
@@ -51,8 +52,13 @@ real-time-sales-forecasting/
   - Trained an ARIMA model using statsmodels for 7-day sales forecasting.
   - Saved the model and generated forecasts, stored in `data/processed/forecasted_sales.csv`.
 
+- **Day 3**:
+  - Implemented inventory alert logic to detect low stock based on forecasted sales.
+  - Defined reorder threshold as 1.5 * average daily sales.
+  - Generated alert messages saved to `data/processed/inventory_alerts.csv`.
+
+
 ## Next Steps
-- Day 3: Implement inventory alert logic.
 - Day 4: Develop a Plotly Dash dashboard.
 - Day 5: Integrate AWS Lambda and DynamoDB.
 - Day 6: Add email alerts and finalize documentation.
