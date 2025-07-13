@@ -57,9 +57,13 @@ real-time-sales-forecasting/
   - Defined reorder threshold as 1.5 * average daily sales.
   - Generated alert messages saved to `data/processed/inventory_alerts.csv`.
 
+- **Day 4**:
+  - Built a Plotly Dash dashboard to visualize sales trends, forecasted stock needs, and inventory alerts.
+  - Containerized the dashboard using Docker for consistent local deployment.
+  - Deployed to Render.com for cloud access.
+
 
 ## Next Steps
-- Day 4: Develop a Plotly Dash dashboard.
 - Day 5: Integrate AWS Lambda and DynamoDB.
 - Day 6: Add email alerts and finalize documentation.
 

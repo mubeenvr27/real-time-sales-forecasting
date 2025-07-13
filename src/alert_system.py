@@ -5,19 +5,6 @@ from utils import load_and_preprocess_data, calculate_reorder_threshold
 def generate_inventory_alerts(historical_data_path='data/processed/cleaned_sales_data.csv',
                              forecast_data_path='data/processed/forecasted_sales.csv',
                              initial_stock=None, multiplier=1.5, first_alert_only=False):
-    """
-    Generate inventory alerts based on forecasted sales and reorder threshold.
-
-    Args:
-        historical_data_path (str): Path to historical sales data.
-        forecast_data_path (str): Path to forecasted sales data.
-        initial_stock (float): Initial stock level (default: None, uses last 'stock' from historical data).
-        multiplier (float): Multiplier for reorder threshold (default: 1.5).
-        first_alert_only (bool): If True, only generate the first alert (default: False).
-
-    Returns:
-        pd.DataFrame: DataFrame with alerts (date, stock, forecasted_sales, message).
-    """
     # Check file existence
     if not os.path.exists(historical_data_path):
         raise FileNotFoundError(f"Historical data file not found at {historical_data_path}")
