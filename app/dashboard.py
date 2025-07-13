@@ -4,15 +4,17 @@ import plotly.graph_objects as go
 from dash import Dash, dcc, html, dash_table
 import sys
 import os
+from flask import Flask, Response
 
-# Add src/ to the module search path
+# Add src/ to the module search path before imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
-# Import load_and_preprocess_data
+# Import load_and_preprocess_data after updating path
 from utils import load_and_preprocess_data
 
-# Initialize Dash app
-app = Dash(__name__)
+# Initialize Flask server and Dash app
+server = Flask(__name__)
+app = Dash(__name__, server=server)
 
 # Load data with error handling
 def load_data():
@@ -73,6 +75,11 @@ else:
 # Create alerts table
 alerts_table_data = alerts_df[['date', 'stock', 'forecasted_sales', 'message']].copy()
 alerts_table_data['date'] = alerts_table_data['date'].apply(lambda x: pd.to_datetime(x).strftime('%Y-%m-%d') if pd.notna(x) else '')
+
+# Health check endpoint
+@server.route('/healthz')
+def health_check():
+    return Response("OK", status=200)
 
 # Define layout
 app.layout = html.Div([
