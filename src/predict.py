@@ -1,13 +1,14 @@
 import pandas as pd
 import joblib
-from utils import load_and_preprocess_data
+from .utils import load_and_preprocess_data
 import os
 
-def forecast_sales(model_path='model/sales_forecast.pkl', steps=7, input_data_path='data/processed/cleaned_sales_data.csv'):
+def forecast_sales(df=None, model_path='model/sales_forecast.pkl', steps=7, input_data_path='data/processed/cleaned_sales_data.csv'):
     """
     Generate a 7-day sales forecast using the trained ARIMA model.
 
     Args:
+        df (pd.DataFrame, optional): Preloaded DataFrame with date index and sales/stock data.
         model_path (str): Path to the trained model file (default: 'model/sales_forecast.pkl').
         steps (int): Number of days to forecast (default: 7 for weekly forecast).
         input_data_path (str): Path to the input sales data (default: 'data/processed/cleaned_sales_data.csv').
@@ -16,7 +17,7 @@ def forecast_sales(model_path='model/sales_forecast.pkl', steps=7, input_data_pa
         pd.DataFrame: DataFrame with forecast dates and predicted sales.
     """
     # Check if model file exists
-    if not os.path.exists(model_path):
+    if not isinstance(model_path, (str, os.PathLike)) or not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found at {model_path}")
 
     # Load the trained model
@@ -25,11 +26,17 @@ def forecast_sales(model_path='model/sales_forecast.pkl', steps=7, input_data_pa
     except Exception as e:
         raise ValueError(f"Error loading model from {model_path}: {str(e)}")
 
-    # Load and preprocess data to get the last date
+    # Load and preprocess data
     try:
-        df = load_and_preprocess_data()  # Uses your utils function
+        if df is None:
+            df = load_and_preprocess_data(input_data_path)
+        else:
+            # Ensure df is properly indexed
+            if not isinstance(df.index, pd.DatetimeIndex):
+                df['date'] = pd.to_datetime(df.index)
+                df = df.set_index('date')
     except Exception as e:
-        raise ValueError(f"Error loading data from {input_data_path}: {str(e)}")
+        raise ValueError(f"Error loading data: {str(e)}")
 
     # Ensure the index is a DatetimeIndex
     if not isinstance(df.index, pd.DatetimeIndex):
@@ -46,7 +53,7 @@ def forecast_sales(model_path='model/sales_forecast.pkl', steps=7, input_data_pa
     except Exception as e:
         raise ValueError(f"Error generating forecast: {str(e)}")
 
-    # Create date range for forecast (starting the day after the last date)
+    # Create date range for forecast
     forecast_dates = pd.date_range(start=last_date + pd.Timedelta(days=1), periods=steps, freq='D')
 
     # Create forecast DataFrame
@@ -54,7 +61,7 @@ def forecast_sales(model_path='model/sales_forecast.pkl', steps=7, input_data_pa
         'date': forecast_dates,
         'forecasted_sales': forecast
     })
-    forecast_df['date'] = pd.to_datetime(forecast_df['date'])
+    forecast_df['date'] = forecast_df['date'].astype(str)  # Convert Timestamp to string
 
     # Save forecast to CSV
     output_path = 'data/processed/forecasted_sales.csv'
