@@ -3,73 +3,116 @@ import os
 import json
 import boto3
 import pandas as pd
-import joblib
 
-# Add the project root to the Python path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
-
-# Verify the src directory exists
-src_path = os.path.join(project_root, 'src')
-if not os.path.exists(src_path):
-    raise ImportError(f"Could not find src directory at: {src_path}")
+# Set correct paths for Lambda environment
+sys.path.insert(0, '/var/task')
+sys.path.insert(0, '/var/task/src')
 
 try:
     from src.predict import forecast_sales
-    from src.utils import load_and_preprocess_data
-    print("Successfully imported all modules")
+    print("Successfully imported forecast_sales")
 except ImportError as e:
     print(f"Import error: {e}")
-    print("Current sys.path:", sys.path)
-    print("Contents of src directory:", os.listdir(src_path))
-    raise
-
-
+    # Try alternative import paths
+    try:
+        from predict import forecast_sales
+        print("Successfully imported with alternative path")
+    except ImportError as e2:
+        print(f"Alternative import error: {e2}")
+        raise
 
 def lambda_handler(event, context):
-    # Initialize AWS clients
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('SalesData')
+    print("Received event:", json.dumps(event))
     
-    # Parse incoming data (e.g., from API Gateway)
-    body = json.loads(event.get('body', '{}'))
-    date = body.get('date')
-    sales = int(body.get('sales', 0))
-    stock = int(body.get('stock', 0))
-    
-    # Store new data in DynamoDB
-    table.put_item(
-        Item={
-            'date': date,
-            'sales': sales,
-            'stock': stock
+    try:
+        # Parse the incoming event
+        if 'body' in event:
+            body = json.loads(event['body'])
+        else:
+            body = event
+            
+        # Extract data
+        date = body.get('date')
+        sales = int(body.get('sales', 0))
+        stock = int(body.get('stock', 0))
+
+        if not all([date, sales, stock]):
+            return {
+                'statusCode': 400, 
+                'body': json.dumps({'error': 'Missing required fields: date, sales, stock'})
+            }
+
+        # Initialize DynamoDB
+        dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+        table = dynamodb.Table('SalesData')
+
+        # Store in DynamoDB
+        table.put_item(
+            Item={
+                'date': date,
+                'sales': sales,
+                'stock': stock
+            }
+        )
+        print(f"Data stored: {date}, sales: {sales}, stock: {stock}")
+
+        # Get all data for forecasting
+        response = table.scan()
+        items = response['Items']
+        
+        while 'LastEvaluatedKey' in response:
+            response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+            items.extend(response['Items'])
+        
+        # Convert to DataFrame and prepare for forecasting
+        df = pd.DataFrame(items)
+        df['date'] = pd.to_datetime(df['date'])
+        df = df.sort_values('date')
+        
+        # Set date as index (required by forecast_sales function)
+        df_for_forecast = df.set_index('date')
+        
+        # Generate forecast - forecast_sales loads the model internally
+        try:
+            forecast_df = forecast_sales(df_for_forecast)
+            
+            return {
+                'statusCode': 200,
+                'body': json.dumps({
+                    'message': 'Data stored and forecast generated',
+                    'forecast': forecast_df.to_dict('records')
+                })
+            }
+            
+        except Exception as e:
+            print(f"Forecast error: {e}")
+            import traceback
+            traceback.print_exc()
+            return {
+                'statusCode': 200,
+                'body': json.dumps({
+                    'message': 'Data stored successfully but forecast failed',
+                    'error': str(e)
+                })
+            }
+            
+    except Exception as e:
+        print(f"Lambda error: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)})
         }
-    )
-    
-    # Fetch historical data from DynamoDB
-    response = table.scan()
-    items = response['Items']
-    df = pd.DataFrame(items)
-    df['date'] = pd.to_datetime(df['date'])
-    df = df.sort_values('date').set_index('date')
-    
-    # Load the pre-trained model
-    model_path = os.path.join(project_root, 'model', 'sales_forecast.pkl')
-    model = joblib.load(model_path)
-    
-    # Trigger prediction
-    forecast_df = forecast_sales(df)
-    
-    # Return response
-    return {
-        'statusCode': 200,
-        'body': json.dumps({
-        'message': 'Data stored and forecast generated',
-        'forecast': forecast_df.to_dict('records')
+
+# Test function
+if __name__ == "__main__":
+    test_event = {
+        "body": json.dumps({
+            "date": "2025-07-15", 
+            "sales": 50, 
+            "stock": 30
         })
     }
-
-if __name__ == "__main__":
-    test_event = {"body": json.dumps({"date": "2025-07-15", "sales": 50, "stock": 30})}
     result = lambda_handler(test_event, None)
-    print(result)
+    print("Test result:", result)

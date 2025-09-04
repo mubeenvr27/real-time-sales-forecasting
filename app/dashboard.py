@@ -12,9 +12,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 's
 # Import load_and_preprocess_data after updating path
 from utils import load_and_preprocess_data
 
+
 # Initialize Flask server and Dash app
 server = Flask(__name__)
 app = Dash(__name__, server=server)
+
 
 # Load data with error handling
 def load_data():
@@ -46,8 +48,11 @@ def load_data():
 
     return historical_df, forecast_df, alerts_df
 
+
 # Load data
 historical_df, forecast_df, alerts_df = load_data()
+
+
 
 # Create sales plot
 fig_sales = go.Figure()
@@ -62,6 +67,8 @@ fig_sales.update_layout(
     margin=dict(l=50, r=50, t=50, b=50)
 )
 
+
+
 # Create forecast table
 forecast_table_data = forecast_df[['date', 'forecasted_sales']].copy()
 forecast_table_data['date'] = forecast_table_data['date'].dt.strftime('%Y-%m-%d')
@@ -71,6 +78,9 @@ if not forecast_df.empty:
     forecast_table_data['stock_after_sales'] = stock_after_sales.clip(lower=0)  # Cap stock at 0
 else:
     forecast_table_data['stock_after_sales'] = []
+
+
+
 
 # Create alerts table
 alerts_table_data = alerts_df[['date', 'stock', 'forecasted_sales', 'message']].copy()
@@ -116,4 +126,8 @@ app.layout = html.Div([
 if __name__ == '__main__':
     import os
     port = int(os.getenv('PORT', 8050))  # Use PORT env var from Render, default to 8050 locally
-    app.run_server(debug=True, host='0.0.0.0', port=port)
+    app.run(debug=True, host='0.0.0.0', port=port)
+
+
+
+    

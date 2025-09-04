@@ -1,0 +1,10 @@
+# real-time-sales-forecasting/Dockerfile.lambda
+FROM public.ecr.aws/lambda/python:3.9
+WORKDIR /var/task
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY src/ ./src/
+COPY model/sales_forecast.pkl ./sales_forecast.pkl
+COPY aws/lambda_function.py .
+COPY data/ ./data/
+CMD ["lambda_function.lambda_handler"]
