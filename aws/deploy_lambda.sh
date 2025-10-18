@@ -2,7 +2,7 @@
 
 # Configuration
 LAMBDA_FUNCTION_NAME="SalesForecastFunction"
-LAMBDA_ROLE_ARN="arn:aws:iam::382284572347:role/lambda-exec-role"
+LAMBDA_ROLE_ARN="arn:aws:iam::127214169842:role/lambda-exec-role"
 REGION="us-east-1"
 ZIP_FILE="lambda.zip"
 
@@ -65,4 +65,5 @@ fi
 
 # Clean up
 rm -f $ZIP_FILE
-echo -e "${GREEN}Deployment package cleaned up${NC}"
+echo -e "${GREEN}Deployment package cleaned up${NC}
+EOF

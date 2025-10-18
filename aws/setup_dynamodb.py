@@ -1,22 +1,17 @@
+# real-time-sales-forecasting/aws/setup_dynamo.py
 import boto3
 from botocore.exceptions import ClientError
 import pandas as pd
 
 def create_sales_table():
+    """Create DynamoDB table for sales data"""
     dynamodb = boto3.client('dynamodb', region_name='us-east-1')
     try:
         response = dynamodb.create_table(
             TableName='SalesData',
-            KeySchema=[
-                {'AttributeName': 'date', 'KeyType': 'HASH'}  # Partition key
-            ],
-            AttributeDefinitions=[
-                {'AttributeName': 'date', 'AttributeType': 'S'}
-            ],
-            ProvisionedThroughput={
-                'ReadCapacityUnits': 5,
-                'WriteCapacityUnits': 5
-            }
+            KeySchema=[{'AttributeName': 'date', 'KeyType': 'HASH'}],
+            AttributeDefinitions=[{'AttributeName': 'date', 'AttributeType': 'S'}],
+            ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
         print("Table created successfully:", response)
     except ClientError as e:
@@ -26,6 +21,7 @@ def create_sales_table():
             raise e
 
 def populate_sales_table(file_path='data/processed/cleaned_sales_data.csv'):
+    """Populate DynamoDB table with historical data"""
     dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
     table = dynamodb.Table('SalesData')
     print(f"Loading data from {file_path}")
@@ -44,7 +40,7 @@ def populate_sales_table(file_path='data/processed/cleaned_sales_data.csv'):
                 }
             )
             success_count += 1
-            if index % 100 == 0:  # Progress update every 100 rows
+            if index % 100 == 0:
                 print(f"Processed {index + 1} rows, {success_count} successes")
         except ClientError as e:
             print(f"Error at row {index}: {e}")

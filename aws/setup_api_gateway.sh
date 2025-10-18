@@ -1,3 +1,4 @@
+# real-time-sales-forecasting/aws/deploy_lambda.sh
 #!/bin/bash
 
 # Configuration
@@ -67,22 +68,13 @@ aws apigateway put-method-response \
   --response-models '{"application/json": "Empty"}' \
   --region $REGION
 
-# Set up integration response
-aws apigateway put-integration-response \
-  --rest-api-id $API_ID \
-  --resource-id $SALES_RESOURCE_ID \
-  --http-method POST \
-  --status-code 200 \
-  --selection-pattern "" \
-  --region $REGION
-
 # Add permission for API Gateway to invoke Lambda
 aws lambda add-permission \
   --function-name $LAMBDA_FUNCTION_NAME \
   --statement-id apigateway-test \
   --action lambda:InvokeFunction \
   --principal apigateway.amazonaws.com \
-  --source-arn "arn:aws:execute-api:$REGION:382284572347:$API_ID/*/POST/sales" \
+  --source-arn "arn:aws:execute-api:$REGION:$API_ID/*/POST/sales" \
   --region $REGION
 
 # Deploy API
